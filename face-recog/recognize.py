@@ -35,7 +35,6 @@ def update_face_data(kvs):
         add_face_to_data(data, key, value)
 
 
-
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--cascade", required=True,
