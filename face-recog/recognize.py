@@ -1,5 +1,5 @@
 # USAGE
-# python3 recognize.py --cascade haarcascade_frontalface_default.xml -yaks <yaks-locator> -path <path-to-faces>
+# python3 recognize.py --cascade haarcascade_frontalface_default.xml --yaks 127.0.0.1 --path //demo/cv/face/signature
 
 # import the necessary packages
 from imutils.video import VideoStream
@@ -10,9 +10,11 @@ import imutils
 import pickle
 import time
 import cv2
-from yaks_api import api
+from yaks import YAKS
 import ast
 import numpy as np
+import json
+import jsonpickle
 
 data = {}
 data['encodings'] = []
@@ -33,33 +35,32 @@ def update_face_data(kvs):
         key = kv['key']
         value = kv['value']
         add_face_to_data(data, key, value)
-
-
+    
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--cascade", required=True,
                 help="path to where the face cascade resides")
-ap.add_argument("-y", "--yaks", required=True,
-                help="yaks locator")
+ap.add_argument("-y", "--yaks", type=str, default="127.0.0.1",
+                help="the YAKS instance")                
 ap.add_argument("-p", "--path", required=True,
                 help="The path indicating the faced that will have to be recognised")
 args = vars(ap.parse_args())
 
 print("[INFO] Connecting to YAKS ")
 
-ys = api.YAKS(args['yaks'])
+ys = YAKS(args['yaks'])
 base_uri = args['path']
 uri_prefix = '{}/'.format(base_uri)
-acs = ys.create_access(base_uri)
+acs = ys.create_access('//')
 uri = "{}/**".format(base_uri)
 print("[INFO] Retrieving Faces Signatures")
 fs = acs.get(uri)
 
-for f in fs:
+for f in fs:    
     add_face_to_data(data, f['key'], f['value'])
+    print('Loaded data for face: {}'.format(f['key']))
 
 acs.subscribe(uri, update_face_data)
-
 
 # load the known faces and embeddings along with OpenCV's Haar
 # cascade for face detection
@@ -102,6 +103,7 @@ while True:
 
     # compute the facial embeddings for each face bounding box
     encodings = face_recognition.face_encodings(rgb, boxes)
+
     names = []
 
     # loop over the facial embeddings
@@ -132,8 +134,15 @@ while True:
             # will select first entry in the dictionary)
             name = max(counts, key=counts.get)
 
-        # update the list of names
+        # update the list of names        
         names.append(name)
+        
+        for i in range(0 , len(names)):
+            face = {}
+            face['name'] = names[i]
+            face['encoding'] = jsonpickle.encode(encodings[i])
+            print('Processing the {}-th detected face'.format(i))
+            acs.put('//demo/cv/face/detected/{}'.format(names[i]), json.dumps(face))    
 
     # loop over the recognized faces
     for ((top, right, bottom, left), name) in zip(boxes, names):
