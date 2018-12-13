@@ -45,4 +45,8 @@ a yaks-sub application as follows:
 
 For using our demo YAKS do:      
 
+<<<<<<< HEAD
         $ python3 yaks_sub.py -s //demo/cv/face/detected/* --yaks demo.yaks.is
+=======
+        $ python3 yaks_sub.py -s //demo/cv/face/detected/* --yaks demo.yaks.is
+>>>>>>> 4022b4db827ca9376be25a3ebffe1ac55df7f7fe
