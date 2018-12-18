@@ -1,5 +1,5 @@
 # USAGE
-# python3 recognize.py --cascade haarcascade_frontalface_default.xml --yaks 127.0.0.1 --path //demo/cv/face/signature
+# python3 recognize.py --cascade haarcascade_frontalface_default.xml --yaks 127.0.0.1 --path /demo/cv/face/signature
 
 # import the necessary packages
 from imutils.video import VideoStream

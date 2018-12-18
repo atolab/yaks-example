@@ -14,7 +14,7 @@ def listener(kvs):
         d = json.loads(kv['value'])
         print(d)
 
-base_uri = '//'
+base_uri = '/'
 ys = YAKS(args['yaks'])
 acs = ys.create_access(base_uri)
 acs.subscribe(args['selector'], listener)

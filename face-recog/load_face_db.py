@@ -1,4 +1,4 @@
-# python3 load_face_db.py --path //demo/cv/face/signature -d face-sig-db/adlink.json 
+# python3 load_face_db.py --path /demo/cv/face/signature -d face-sig-db/adlink.json 
 from yaks import YAKS
 import sys
 import json
