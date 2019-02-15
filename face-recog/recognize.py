@@ -10,7 +10,9 @@ import imutils
 import pickle
 import time
 import cv2
-from yaks import YAKS
+from yaks import Yaks
+from yaks import Encoding
+from yaks import Value
 import ast
 import numpy as np
 import json
@@ -31,9 +33,9 @@ def add_face_to_data(fdata, key, value):
 
 def update_face_data(kvs):
     print('Updating face data')
-    for kv in kvs:
-        key = kv['key']
-        value = kv['value']
+    for (k,v) in kvs:
+        key = k
+        value = v.value
         add_face_to_data(data, key, value)
     
 # construct the argument parser and parse the arguments
@@ -48,19 +50,19 @@ args = vars(ap.parse_args())
 
 print("[INFO] Connecting to YAKS ")
 
-ys = YAKS(args['yaks'])
+ys = Yaks.login(args['yaks'])
 base_uri = args['path']
 uri_prefix = '{}/'.format(base_uri)
-acs = ys.create_access('//')
+ws = ys.workspace('/')
 uri = "{}/**".format(base_uri)
 print("[INFO] Retrieving Faces Signatures")
-fs = acs.get(uri)
+fs = ws.get(uri, encoding=Encoding.STRING)
 
-for f in fs:    
-    add_face_to_data(data, f['key'], f['value'])
-    print('Loaded data for face: {}'.format(f['key']))
+for (k,v) in fs:    
+    add_face_to_data(data, k, v.value)
+    print('Loaded data for face: {}'.format(k))
 
-acs.subscribe(uri, update_face_data)
+ws.subscribe(uri, update_face_data)
 
 # load the known faces and embeddings along with OpenCV's Haar
 # cascade for face detection
@@ -141,8 +143,8 @@ while True:
             face = {}
             face['name'] = names[i]
             face['encoding'] = jsonpickle.encode(encodings[i])
-            print('Processing the {}-th detected face'.format(i))
-            acs.put('//demo/cv/face/detected/{}'.format(names[i]), json.dumps(face))    
+            print('Detected {}'.format(names[i]))
+            ws.put('/demo/cv/face/detected/{}'.format(names[i]), Value(json.dumps(face), encoding=Encoding.STRING))   
 
     # loop over the recognized faces
     for ((top, right, bottom, left), name) in zip(boxes, names):

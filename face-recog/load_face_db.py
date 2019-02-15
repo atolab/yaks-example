@@ -1,5 +1,7 @@
 # python3 load_face_db.py --path /demo/cv/face/signature -d face-sig-db/adlink.json 
-from yaks import YAKS
+from yaks import Yaks
+from yaks import Encoding
+from yaks import Value
 import sys
 import json
 import argparse
@@ -16,17 +18,18 @@ args = vars(ap.parse_args())
 
 def main(face_db):
     locator = args['yaks']
-    ys = YAKS(locator)
+    ys = Yaks.login(locator)
     base_uri = args['path']
     # storage = ys.create_storage(base_uri)
-    access = ys.create_access(base_uri)
+    ws = ys.workspace(base_uri)
     for (k,vs) in face_db.items(): 
         for j,v in enumerate (vs):
             uri = '{}/{}/{}'.format(base_uri, k, j)
             print('> Inserting face {}'.format(uri)) 
             sv = json.dumps(v)
-            access.put(uri, sv)
+            ws.put(uri, Value(sv, encoding=Encoding.STRING))
 
+    ys.logout()
 
 if __name__ == '__main__':
     f = open(args['dataset'])

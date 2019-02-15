@@ -25,22 +25,22 @@ In order to use these data-set they have to be transformed info a face-signature
 Now you should load the  data-set on YAKS, to do so, depeding on the instance you decided to run, 
 execute one of the following commands:
                 
-        $ python3 load_face_db.py --path //demo/cv/face/signature -d face-sig-db/tennis-db.json 
+        $ python3 load_face_db.py --path /demo/cv/face/signature -d face-sig-db/tennis-db.json 
 
 For using our demo YAKS do:
 
-        $ python3 load_face_db.py --path //demo/cv/face/signature -d face-sig-db/tennis-db.json  -y demo.yaks.is
+        $ python3 load_face_db.py --path /demo/cv/face/signature -d face-sig-db/tennis-db.json  -y demo.yaks.is
 
 
 
 # Step IV -- Running the Face Recognition Application 
 To start the face recognition do:
 
-        $ python3 recognize.py --cascade haarcascade_frontalface_default.xml --path //demo/cv/face/signature
+        $ python3 recognize.py --cascade haarcascade_frontalface_default.xml --path /demo/cv/face/signature
 
 For using our demo YAKS do:
 
-        $ python3 recognize.py --cascade haarcascade_frontalface_default.xml --yaks demo.yaks.is --path //demo/cv/face/signature
+        $ python3 recognize.py --cascade haarcascade_frontalface_default.xml --yaks demo.yaks.is --path /demo/cv/face/signature
 
 
 # Step V -- Subscribing to Detection Information
@@ -48,12 +48,8 @@ For using our demo YAKS do:
 If you want to subscribe to the information of the face being detected, you can run
 a yaks-sub application as follows:
 
-        $ python3 yaks_sub.py -s //demo/cv/face/detected/* 
+        $ python3 yaks_sub.py -s /demo/cv/face/detected/* 
 
 For using our demo YAKS do:      
 
-<<<<<<< HEAD
-        $ python3 yaks_sub.py -s //demo/cv/face/detected/* --yaks demo.yaks.is
-=======
-        $ python3 yaks_sub.py -s //demo/cv/face/detected/* --yaks demo.yaks.is
->>>>>>> 4022b4db827ca9376be25a3ebffe1ac55df7f7fe
+        $ python3 yaks_sub.py -s /demo/cv/face/detected/* --yaks demo.yaks.is
