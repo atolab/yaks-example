@@ -12,7 +12,7 @@ import time
 import cv2
 from yaks import Yaks
 from yaks import Encoding
-from yaks import Value
+from yaks import Value, ChangeKind
 import ast
 import numpy as np
 import json
@@ -31,12 +31,13 @@ def add_face_to_data(fdata, key, value):
     fdata['encodings'].append(a)
 
 
-def update_face_data(kvs):
+def update_face_data(kcs):
     print('Updating face data')
-    for (k,v) in kvs:
-        key = k
-        value = v.value
-        add_face_to_data(data, key, value)
+    for (k,c) in kcs:
+        if c.kind == ChangeKind.PUT:
+            key = k
+            value = c.value.value
+            add_face_to_data(data, key, value)
     
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()

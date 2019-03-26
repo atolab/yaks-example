@@ -1,4 +1,5 @@
-from yaks import YAKS
+from yaks import Yaks
+from yaks import Value, ChangeKind
 import argparse
 import json
 
@@ -9,13 +10,14 @@ ap.add_argument("-y", "--yaks", type=str, default="127.0.0.1",
                 help="the YAKS instance")
 args = vars(ap.parse_args())
 
-def listener(kvs):    
-    for kv in kvs:
-        d = json.loads(kv['value'])
-        print(d)
+def listener(kcs):    
+    for (k,c) in kcs:
+        if c.kind == ChangeKind.PUT:
+                d = json.loads(c.value.value)
+                print(d)
 
 base_uri = '/'
-ys = YAKS(args['yaks'])
-acs = ys.create_access(base_uri)
-acs.subscribe(args['selector'], listener)
+y = Yaks.login(args['yaks'])
+workspace = y.workspace('/')
+workspace.subscribe(args['selector'], listener)
 input('Press a key to exit...')
