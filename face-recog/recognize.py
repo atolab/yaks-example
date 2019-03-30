@@ -1,5 +1,7 @@
 # USAGE
-# python3 recognize.py --cascade haarcascade_frontalface_default.xml --yaks 127.0.0.1 --path /demo/cv/face/signature
+# python3 recognize.py --cascade haarcascade_frontalface_default.xml --yaks 127.0.0.1 \
+# --faces /demo/smart-home/<home>/vision/signature \
+# --recog /demo/smart-home/<home>/vision/recognised
 
 # import the necessary packages
 from imutils.video import VideoStream
@@ -23,6 +25,27 @@ data['encodings'] = []
 data['names'] = []
 
 
+class TemporalSet(object):
+    def __init__(self, interval):
+        self.faces = {}
+        self.interval = interval      
+
+    def add_item(self, face):        
+        self.faces[face] = time.time()
+   
+    def actualise(self):
+        now = time.time()
+        ofs = []
+        for (f, t) in self.faces.items():
+            if (t < now - self.interval):
+                ofs.append(f)
+        
+        for f in ofs:
+            del self.faces[f]
+    
+    def get_items(self):
+        return [f for (f, _) in self.faces.items()]
+
 def add_face_to_data(fdata, key, value):
     a, b, c = key.partition(uri_prefix)
     name, sep, num = c.partition('/')
@@ -45,19 +68,28 @@ ap.add_argument("-c", "--cascade", required=True,
                 help="path to where the face cascade resides")
 ap.add_argument("-y", "--yaks", type=str, default="127.0.0.1",
                 help="the YAKS instance")                
-ap.add_argument("-p", "--path", required=True,
+ap.add_argument("-i", "--dinterval", type=float, default=2.1,
+                help="detection interval")                                
+ap.add_argument("-f", "--faces", required=True,
                 help="The path indicating the faced that will have to be recognised")
+ap.add_argument("-r", "--recog", required=True,
+                help="The path indicating where recognised faces will be stored")                
 args = vars(ap.parse_args())
 
 print("[INFO] Connecting to YAKS ")
 
+
 ys = Yaks.login(args['yaks'])
-base_uri = args['path']
+base_uri = args['faces']
+recog_uri = args['recog']
+detection_interval = args['dinterval']
 uri_prefix = '{}/'.format(base_uri)
 ws = ys.workspace('/')
 uri = "{}/**".format(base_uri)
 print("[INFO] Retrieving Faces Signatures")
 fs = ws.get(uri, encoding=Encoding.STRING)
+
+face_set = TemporalSet(detection_interval)
 
 for (k,v) in fs:    
     add_face_to_data(data, k, v.value)
@@ -140,13 +172,16 @@ while True:
         # update the list of names        
         names.append(name)
         
+        last_detection_set = str(face_set.get_items())
         for i in range(0 , len(names)):
-            face = {}
-            face['name'] = names[i]
-            face['encoding'] = jsonpickle.encode(encodings[i])
-            print('Detected {}'.format(names[i]))
-            ws.put('/demo/cv/face/detected/{}'.format(names[i]), Value(json.dumps(face), encoding=Encoding.STRING))   
+            face_set.add_item(names[i])
 
+        face_set.actualise()
+        new_detection_set = str(face_set.get_items())
+        if (new_detection_set != last_detection_set):
+            print("New faces recognised {}".format(new_detection_set))  
+            ws.put(recog_uri, Value(new_detection_set, encoding=Encoding.STRING))
+        
     # loop over the recognized faces
     for ((top, right, bottom, left), name) in zip(boxes, names):
         # draw the predicted face name on the image
