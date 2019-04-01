@@ -172,15 +172,15 @@ while True:
         # update the list of names        
         names.append(name)
         
-        last_detection_set = str(face_set.get_items())
-        for i in range(0 , len(names)):
-            face_set.add_item(names[i])
+    last_detection_set = str(face_set.get_items())
+    for i in range(0 , len(names)):
+        face_set.add_item(names[i])
 
-        face_set.actualise()
-        new_detection_set = str(face_set.get_items())
-        if (new_detection_set != last_detection_set):
-            print("New faces recognised {}".format(new_detection_set))  
-            ws.put(recog_uri, Value(new_detection_set, encoding=Encoding.STRING))
+    face_set.actualise()
+    new_detection_set = str(face_set.get_items())
+    if (new_detection_set != last_detection_set):
+        print("New faces recognised {}".format(new_detection_set))  
+        ws.put(recog_uri, Value(new_detection_set, encoding=Encoding.STRING))
         
     # loop over the recognized faces
     for ((top, right, bottom, left), name) in zip(boxes, names):
