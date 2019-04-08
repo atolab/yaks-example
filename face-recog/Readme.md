@@ -6,7 +6,7 @@ notification of recognised faces.
 Python 3,  pip3 and the yaks-python api.
 Install the required python modules:
 
-        $ pip3 install jsonschema jsonpickle argcomplete imutils opencv-python opencv-contrib-python
+        $ pip3 install jsonschema jsonpickle argcomplete imutils opencv-python opencv-contrib-python face_recognition
 
 
 ## Step I -- Decide which YAKS instance to use
