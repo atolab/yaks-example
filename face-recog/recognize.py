@@ -74,6 +74,8 @@ ap.add_argument("-f", "--faces", required=True,
                 help="The path indicating the faced that will have to be recognised")
 ap.add_argument("-r", "--recog", required=True,
                 help="The path indicating where recognised faces will be stored")                
+ap.add_argument("-n", "--nodisplay", action='store_true',
+                help="Disable the video display")                
 args = vars(ap.parse_args())
 
 print("[INFO] Connecting to YAKS ")
@@ -103,7 +105,7 @@ print("[INFO] loading encodings + face detector...")
 
 
 
-detector = cv2.CascadeClassifier(args["cascade"])
+detector = cv2.CascadeClassifier(args['cascade'])
 
 # initialize the video stream and allow the camera sensor to warm up
 print("[INFO] starting video stream...")
@@ -192,10 +194,12 @@ while True:
                     0.75, (0, 255, 0), 2)
 
     # display the image to our screen
-    cv2.imshow("Frame", frame)
-    key = cv2.waitKey(1) & 0xFF
+    if not args['nodisplay']:
+        cv2.imshow("Frame", frame)
+
 
     # if the `q` key was pressed, break from the loop
+    key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):
         break
 
