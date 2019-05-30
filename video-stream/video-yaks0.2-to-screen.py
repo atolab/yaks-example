@@ -1,6 +1,4 @@
-import zenoh
 from yaks import *
-from yaks.bindings import *
 import argparse
 from imutils.video import VideoStream
 import imutils

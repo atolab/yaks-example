@@ -1,4 +1,3 @@
-import zenoh
 from yaks import Yaks, Selector, Path, Workspace, Encoding, Value
 import argparse
 from imutils.video import VideoStream
