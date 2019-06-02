@@ -23,12 +23,15 @@ def listener(kvs):
       ret, jpeg = cv2.imencode('.jpg', frame)
       buf=jpeg.tobytes()
       for stream in mjpg_streams:
-        stream.wfile.write(b'--frame')
-        stream.send_header('Content-type','image/jpeg')
-        stream.send_header('Content-length',len(buf))
-        stream.end_headers()
-        stream.wfile.write(buf)
-        stream.wfile.flush()
+        try:
+          stream.wfile.write(b'--frame')
+          stream.send_header('Content-type','image/jpeg')
+          stream.send_header('Content-length',len(buf))
+          stream.end_headers()
+          stream.wfile.write(buf)
+          stream.wfile.flush()
+        except:
+          mjpg_streams.remove(stream)
 
 print("[INFO] Connecting to yaks...")
 y = Yaks.login(args['yaks'])
