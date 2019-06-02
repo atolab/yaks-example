@@ -50,7 +50,7 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     
 if __name__ == '__main__':
   try:
-    server = ThreadedHTTPServer(('localhost', args["httpport"]), CamHandler)
+    server = ThreadedHTTPServer(('', args["httpport"]), CamHandler)
     server.serve_forever()
 
   except KeyboardInterrupt:
