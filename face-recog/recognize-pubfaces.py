@@ -68,11 +68,11 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--cascade", required=True,
                 help="path to where the face cascade resides")
 ap.add_argument("-y", "--yaks", type=str, default="127.0.0.1",
-                help="the YAKS instance")                
+                help="the YAKS instance")
 ap.add_argument("-i", "--dinterval", type=float, default=2.1,
-                help="detection interval")                                
+                help="detection interval")
 ap.add_argument("-f", "--faces", required=True,
-                help="The path indicating the faced that will have to be recognised")
+                help="The path indicating the faces that will have to be recognised")
 ap.add_argument("-r", "--recog", required=True,
                 help="The path indicating where recognised faces will be stored")                
 ap.add_argument("-n", "--nodisplay", action='store_true',
@@ -191,10 +191,11 @@ while True:
         print("New faces recognised {}".format(new_detection_set))  
         ws.put(recog_uri, Value(new_detection_set, encoding=Encoding.STRING))
         faces=np.zeros((80,240,3), np.uint8)
-        for ((top, right, bottom, left), name, i) in zip(boxes, names, range(len(names))):
+        for ((name, (top, right, bottom, left)), i) in zip(sorted(zip(names, boxes)), range(len(names))):
             if i < 3:
                 face = frame[top:bottom, left:right]
                 face = imutils.resize(face, height=80, width=80)
+                cv2.putText(face, name, (5, 70) , cv2.FONT_HERSHEY_SIMPLEX, 0.50, (0, 0, 0), 3)
                 cv2.putText(face, name, (5, 70) , cv2.FONT_HERSHEY_SIMPLEX, 0.50, (0, 255, 0), 1)
                 faceheight, facewidth, _ = face.shape
                 faces[0:faceheight, i*80:i*80+facewidth] = face
