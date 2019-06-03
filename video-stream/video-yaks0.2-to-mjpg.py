@@ -19,9 +19,7 @@ mjpg_streams = []
 
 def listener(kvs):
   for (_, v) in kvs: 
-      frame = pickle.loads(v.get_value().get_value())
-      ret, jpeg = cv2.imencode('.jpg', frame)
-      buf=jpeg.tobytes()
+      buf = v.get_value().get_value()
       for stream in mjpg_streams:
         try:
           stream.wfile.write(b'--frame')

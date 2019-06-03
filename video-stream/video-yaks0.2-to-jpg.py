@@ -15,8 +15,9 @@ args = vars(ap.parse_args())
 
 def listener(kvs):
     for (_, v) in kvs:
-        frame = pickle.loads(v.get_value().get_value())
-        cv2.imwrite(args['out'], frame)
+        filehandle = open(args['out'], 'wb')  
+        filehandle.write(v.get_value().get_value())  
+        filehandle.close()  
 
 print("[INFO] Connecting to yaks...")
 y = Yaks.login(args['yaks'])

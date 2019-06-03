@@ -8,6 +8,8 @@ import argparse
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-t", "--httpport", type=int, default=8080, help="The http port")
+ap.add_argument("-w", "--width", type=int, default=500, help="The width of the published frames")
+ap.add_argument("-q", "--quality", type=int, default=95, help="The quality of the published frames (0 - 100)")
 args = vars(ap.parse_args())
 
 print("[INFO] starting video stream...")
@@ -21,8 +23,8 @@ class CamHandler(BaseHTTPRequestHandler):
     while True:
       try:
         frame = vs.read()
-        frame = imutils.resize(frame, width=500)
-        ret, jpeg = cv2.imencode('.jpg', frame)
+        frame = imutils.resize(frame, width=args["width"])
+        ret, jpeg = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), args["quality"]])
         buf=jpeg.tobytes()
         self.wfile.write(b'--frame')
         self.send_header('Content-type','image/jpeg')

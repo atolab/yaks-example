@@ -75,6 +75,10 @@ ap.add_argument("-f", "--faces", required=True,
                 help="The path indicating the faces that will have to be recognised")
 ap.add_argument("-r", "--recog", required=True,
                 help="The path indicating where recognised faces will be stored")                
+ap.add_argument("-w", "--width", type=int, default=450, 
+                help="The width of the published faces")
+ap.add_argument("-q", "--quality", type=int, default=95, 
+                help="The quality of the published faces (0 - 100)")
 ap.add_argument("-n", "--nodisplay", action='store_true',
                 help="Disable the video display")                
 args = vars(ap.parse_args())
@@ -191,18 +195,19 @@ while True:
         print("New faces recognised {}".format(new_detection_set))  
         ws.put(recog_uri, Value(new_detection_set, encoding=Encoding.STRING))
     
-    faces=np.zeros((80,240,3), np.uint8)
+    faces=np.zeros((args["width"] * 2 // 3, args["width"],3), np.uint8)
     for ((name, (top, right, bottom, left)), i) in zip(sorted(zip(names, boxes)), range(len(names))):
         if i < 3:
             face = frame[top:bottom, left:right]
-            face = imutils.resize(face, height=80, width=80)
-            cv2.putText(face, name, (2, 12) , cv2.FONT_HERSHEY_SIMPLEX, 0.50, (0, 0, 0), 3)
-            cv2.putText(face, name, (2, 12) , cv2.FONT_HERSHEY_SIMPLEX, 0.50, (0, 255, 0), 1)
+            face = imutils.resize(face, height=args["width"]//3, width=args["width"]//3)
+            cv2.putText(face, name, (2, 18) , cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0), 3)
+            cv2.putText(face, name, (2, 18) , cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 1)
             faceheight, facewidth, _ = face.shape
-            faces[0:faceheight, i*80:i*80+facewidth] = face
+            faces[0:faceheight, i*args["width"]//3:i*args["width"]//3+facewidth] = face
     if not args['nodisplay']:
         cv2.imshow("Faces", faces)
-    buf = pickle.dumps(faces)
+    ret, jpeg = cv2.imencode('.jpg', faces, [int(cv2.IMWRITE_JPEG_QUALITY), args["quality"]])
+    buf=jpeg.tobytes()
     ws.put(recog_uri+"/image", Value(buf, Encoding.RAW))
         
     # loop over the recognized faces

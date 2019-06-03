@@ -6,6 +6,7 @@ import time
 import pickle
 import cv2
 import queue
+import numpy as np
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-y", "--yaks", type=str, default="127.0.0.1:7887", help="The Yaks server")
@@ -16,8 +17,7 @@ queue = queue.Queue()
 
 def listener(kvs):
     for (_, v) in kvs:
-        frame = pickle.loads(v.get_value().get_value())
-        queue.put(frame)
+        queue.put(v.get_value().get_value())
 
 print("[INFO] Connecting to yaks...")
 y = Yaks.login(args['yaks'])
@@ -26,7 +26,9 @@ ws.subscribe(args['path'], listener)
 
 while True:
     frame = queue.get()
-    cv2.imshow("SUB", frame)
+    npImage = np.array(frame)
+    matImage = cv2.imdecode(npImage, 1)
+    cv2.imshow("SUB", matImage)
 
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):
