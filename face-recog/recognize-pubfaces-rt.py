@@ -196,8 +196,8 @@ while True:
         if i < 3:
             face = frame[top:bottom, left:right]
             face = imutils.resize(face, height=80, width=80)
-            cv2.putText(face, name, (5, 70) , cv2.FONT_HERSHEY_SIMPLEX, 0.50, (0, 0, 0), 3)
-            cv2.putText(face, name, (5, 70) , cv2.FONT_HERSHEY_SIMPLEX, 0.50, (0, 255, 0), 1)
+            cv2.putText(face, name, (2, 12) , cv2.FONT_HERSHEY_SIMPLEX, 0.50, (0, 0, 0), 3)
+            cv2.putText(face, name, (2, 12) , cv2.FONT_HERSHEY_SIMPLEX, 0.50, (0, 255, 0), 1)
             faceheight, facewidth, _ = face.shape
             faces[0:faceheight, i*80:i*80+facewidth] = face
     if not args['nodisplay']:
