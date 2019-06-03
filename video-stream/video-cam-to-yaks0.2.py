@@ -9,6 +9,7 @@ import cv2
 ap = argparse.ArgumentParser()
 ap.add_argument("-y", "--yaks", type=str, default="127.0.0.1:7887", help="The Yaks server")
 ap.add_argument("-p", "--path", type=str, default="/demo/video", help="The path to which frames are published")
+ap.add_argument("-n", "--nodisplay", action='store_true', help="Disable the video display")  
 args = vars(ap.parse_args())
 
 print("[INFO] Connecting to yaks...")
@@ -21,8 +22,9 @@ time.sleep(2.0)
 
 while True:
     frame = vs.read()
-    frame = imutils.resize(frame, width=190)
-    cv2.imshow("PUB", frame)
+    frame = imutils.resize(frame, width=190) 
+    if not args['nodisplay']:
+        cv2.imshow("PUB", frame)
     buf = pickle.dumps(frame)
     ws.put(args['path'], Value(buf, Encoding.RAW))
     
