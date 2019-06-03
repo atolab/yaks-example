@@ -30,14 +30,6 @@ detector = cv2.CascadeClassifier(args['cascade'])
 print("[INFO] Connecting to YAKS ")
 ys = Yaks.login(args['yaks'])
 ws = ys.workspace('/')
-uri = "{}/**".format(args["faces"])
-fs = ws.get(uri, encoding=Encoding.STRING)
-for (k,_) in fs: 
-    chunks=k.split('/')
-    name=chunks[len(chunks) - 2]
-    if name == args["name"]:
-        print("ERROR : {} is already used. Please choose another name.".format(name))
-        exit(-1)
 
 vs = VideoStream(src=0).start()
 
@@ -68,7 +60,18 @@ while True:
             encoding = face_recognition.face_encodings(rgb, 
                 [(rects[0][1], rects[0][0]+rects[0][2], rects[0][1]+rects[0][3], rects[0][0])])[0]
             elist = encoding.tolist()
-            uri = '{}/{}/{}'.format(args["faces"], args["name"], "0")
+
+            uri = "{}/**".format(args["faces"])
+            fs = ws.get(uri, encoding=Encoding.STRING)
+            counter = "0"
+            for (k,_) in fs: 
+                chunks=k.split('/')
+                name=chunks[len(chunks) - 2]
+                if name == args["name"]:
+                    if int(counter) <= int(chunks[len(chunks) - 1]):
+                        counter = str(int(chunks[len(chunks) - 1]) + 1)
+
+            uri = '{}/{}/{}'.format(args["faces"], args["name"], counter)
             print('> Inserting face {}'.format(uri)) 
             ws.put(uri, Value(json.dumps(elist), encoding=Encoding.STRING))
             exit(0)
