@@ -9,7 +9,6 @@ from imutils.video import FPS
 import face_recognition
 import argparse
 import imutils
-import pickle
 import time
 import cv2
 from yaks import Yaks
@@ -17,8 +16,6 @@ from yaks import Encoding
 from yaks import Value, ChangeKind
 import ast
 import numpy as np
-import json
-import jsonpickle
 import os
 
 data = {}
@@ -69,6 +66,8 @@ ap.add_argument("-c", "--cascade", required=True,
                 help="path to where the face cascade resides")
 ap.add_argument("-y", "--yaks", type=str, default="127.0.0.1",
                 help="the YAKS instance")
+ap.add_argument("-d", "--delay", type=float, default=0.01, 
+                help="The delay between each frame in seconds")
 ap.add_argument("-i", "--dinterval", type=float, default=2.1,
                 help="detection interval")
 ap.add_argument("-f", "--faces", required=True,
@@ -228,6 +227,7 @@ while True:
     if key == ord("q"):
         break
     
+    time.sleep(args["delay"]) 
     # update the FPS counter
     fps.update()
 
