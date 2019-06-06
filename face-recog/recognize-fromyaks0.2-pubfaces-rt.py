@@ -156,13 +156,17 @@ def framelistener(kcs):
             
             faces=np.zeros((args["width"] * 2 // 3, args["width"],3), np.uint8)
             for ((name, (top, right, bottom, left)), i) in zip(sorted(zip(names, boxes)), range(len(names))):
-                if i < 3:
+                if i < 6:
                     face = frame[top:bottom, left:right]
                     face = imutils.resize(face, height=args["width"]//3, width=args["width"]//3)
                     cv2.putText(face, name, (2, 18) , cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0), 3)
                     cv2.putText(face, name, (2, 18) , cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 1)
                     faceheight, facewidth, _ = face.shape
-                    faces[0:faceheight, i*args["width"]//3:i*args["width"]//3+facewidth] = face
+                    if i < 3:
+                        faces[0:faceheight, i*args["width"]//3:i*args["width"]//3+facewidth] = face
+                    else:
+                        faces[args["width"]//3:args["width"]//3+faceheight, (i-3)*args["width"]//3:(i-3)*args["width"]//3+facewidth] = face
+
             ret, jpeg = cv2.imencode('.jpg', faces, [int(cv2.IMWRITE_JPEG_QUALITY), args["quality"]])
             buf=jpeg.tobytes()
             ws.put(recog_uri+"/image", Value(buf, Encoding.RAW))
