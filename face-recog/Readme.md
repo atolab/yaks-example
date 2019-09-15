@@ -26,32 +26,37 @@ If you want to generate those databases again (for instance because you added mo
 Now you should load each database (JSON file) on YAKS, to do so, depeding on the instance you decided to run, 
 execute one of the following commands for each database:
                 
-        $ python3 load_face_db.py --path /demo/cv/face/signature -d face-sig-db/tennis-db.json 
+        $ python3 load_face_db.py -d face-sig-db/tennis-db.json 
 
 For using our demo YAKS do:
 
-        $ python3 load_face_db.py --path /demo/cv/face/signature -d face-sig-db/tennis-db.json  -y demo.yaks.is
+        $ python3 load_face_db.py -d face-sig-db/tennis-db.json -z demo.yaks.is
 
+## Step IV -- Run the face detection component
+This component reads frames from the camera, detects faces and publishes the faces images to YAKS.
 
-
-# Step IV -- Running the Face Recognition Application 
-To start the face recognition do:
-
-        $ python3 recognize.py --cascade haarcascade_frontalface_default.xml --faces /demo/cv/face/signature --recog /demo/cv/face/recognized
+        $ python3 detect_faces.py
 
 For using our demo YAKS do:
 
-        $ python3 recognize.py --cascade haarcascade_frontalface_default.xml --yaks demo.yaks.is --faces /demo/cv/face/signature --recog /demo/cv/face/recognized
+        $ python3 detect_faces.py -z demo.yaks.is
 
-The face recognition demo will load the faces signatures stored in Yaks under **/demo/cv/face/signature/\*\*** and compare each detected face to those signatures. The name of recognized faces will be published into Yaks as a list of name with the key **/demo/cv/face/recognized**.
+## Step V -- Run the face recognition component
+This component subscribes to faces images from the detecton component, and to face signatures 
+from the dataset on YAKS, identifies received faces and publishes identifications to YAKS.
 
-# Step V -- Subscribing to Detection Information
+        $ python3 recognize_faces.py
 
-If you want to subscribe to the information of the face being recognized, you can run
-a yaks-sub application as follows:
+For using our demo YAKS do:
 
-        $ python3 yaks_sub.py -s /demo/cv/face/recognized 
+        $ python3 recognize_faces.py -z demo.yaks.is
 
-For using our demo YAKS do:      
+## Step VI -- Run the display component
+This component subscribes to faces images from the detecton component, and to identifications 
+from the face recognition component on YAKS and displays them.
 
-        $ python3 yaks_sub.py -s /demo/cv/face/recognized --yaks demo.yaks.is
+        $ python3 display_faces.py
+
+For using our demo YAKS do:
+
+        $ python3 display_faces.py -z demo.yaks.is

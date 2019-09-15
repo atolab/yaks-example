@@ -1,7 +1,7 @@
 # USAGE
 # When encoding on laptop, desktop, or GPU (slower, more accurate):
 # python3 encode_faces.py --dataset <dataset-path> --detection-method cnn
-# When encoding on Raspberry Pi (faster, more accurate):
+# When encoding on Raspberry Pi (faster, less accurate):
 # python3 encode_faces.py --dataset <dataset-path> -detection-method hog
 
 # import the necessary packages
@@ -33,7 +33,8 @@ face_db = {}
 # loop over the image paths
 for (i, imagePath) in enumerate(imagePaths):
     # extract the person name from the image path
-    print("[INFO] processing image {}/{} ({})".format(i + 1,len(imagePaths),imagePath))
+    print("[INFO] processing image {}/{} ({})".format(
+        i + 1, len(imagePaths), imagePath))
     name = imagePath.split(os.path.sep)[-2]
 
     # load the input image and convert it from RGB (OpenCV ordering)
@@ -43,7 +44,8 @@ for (i, imagePath) in enumerate(imagePaths):
 
     # detect the (x, y)-coordinates of the bounding boxes
     # corresponding to each face in the input image
-    boxes = face_recognition.face_locations(rgb, model=args["detection_method"])
+    boxes = face_recognition.face_locations(
+        rgb, model=args["detection_method"])
 
     # compute the facial embedding for the face
     encodings = face_recognition.face_encodings(rgb, boxes)
