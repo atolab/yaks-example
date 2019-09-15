@@ -9,15 +9,17 @@ import queue
 import numpy as np
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-y", "--yaks", type=str, default="127.0.0.1:7887", help="The Yaks server")
-ap.add_argument("-p", "--path", type=str, default="/demo/video", help="The path to which frames are subscribed")
+ap.add_argument("-z", "--zenoh", type=str, default="127.0.0.1",
+                help="location of the ZENOH router")
+ap.add_argument("-p", "--path", type=str, default="/demo/video",
+                help="The path to which frames are subscribed")
 args = vars(ap.parse_args())
 
 queue = queue.Queue()
 
 def listener(kvs):
-    for (_, v) in kvs:
-        queue.put(v.get_value().get_value())
+    for kv in kvs:
+        queue.put(kv)
 
 print("[INFO] Connecting to yaks...")
 y = Yaks.login(args['yaks'])
@@ -25,10 +27,11 @@ ws = y.workspace('/')
 ws.subscribe(args['path'], listener)
 
 while True:
-    frame = queue.get()
+    k, v = queue.get()
+    frame = v.get_value().get_value()
     npImage = np.array(frame)
     matImage = cv2.imdecode(npImage, 1)
-    cv2.imshow("SUB", matImage)
+    cv2.imshow("SUB " + k, matImage)
 
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):
