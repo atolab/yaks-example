@@ -66,10 +66,10 @@ while True:
             counter = 0
             for k, _ in fs:
                 chunks = k.split('/')
-                name = chunks[len(chunks) - 2]
+                name = chunks[-2]
                 if name == args["name"]:
-                    if counter <= int(chunks[len(chunks) - 1]):
-                        counter = int(chunks[len(chunks) - 1]) + 1
+                    if counter <= int(chunks[-1]):
+                        counter = int(chunks[-1]) + 1
 
             uri = '{}/vectors/{}/{}'.format(
                 args["prefix"], args["name"], str(counter))

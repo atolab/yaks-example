@@ -24,7 +24,7 @@ ap.add_argument("-d", "--detection-method", type=str, default="cnn",
 args = vars(ap.parse_args())
 
 # grab the paths to the input images in our dataset
-print("[INFO] quantifying faces...")
+print("[INFO] Quantifying faces...")
 imagePaths = list(paths.list_images(args["dataset"]))
 
 # initialize the list of known encodings and known names
@@ -62,7 +62,7 @@ for (i, imagePath) in enumerate(imagePaths):
 
 
 # dump the facial encodings + names to disk
-print("[INFO] serializing encodings...")
+print("[INFO] Serializing encodings...")
 
 f = open(args['output'], "w")
 json.dump(face_db, f)

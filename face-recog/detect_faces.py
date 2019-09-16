@@ -32,7 +32,7 @@ ws = ys.workspace('/')
 
 detector = cv2.CascadeClassifier(args['cascade'])
 
-print("[INFO] starting video stream...")
+print("[INFO] Starting video stream...")
 vs = VideoStream(src=0).start()
 time.sleep(1.0)
 

@@ -37,19 +37,6 @@ def update_face_data(kcs):
             add_face_to_data(data, k, value)
 
 
-state = {}
-
-print("[INFO] Connecting to YAKS ")
-ys = Yaks.login(args['zenoh'])
-ws = ys.workspace('/')
-
-print("[INFO] Retrieving Faces Vectors")
-for k, v in ws.get(args['prefix'] + "/vectors/**", encoding=Encoding.STRING):
-    add_face_to_data(data, k, v.value)
-
-ws.subscribe(args['prefix'] + "/vectors/**", update_face_data)
-
-
 def framelistener(kcs):
     for k, v in kcs:
         if v.kind == ChangeKind.PUT:
@@ -87,6 +74,18 @@ def framelistener(kcs):
                 state[k] = (name, time.time())
 
 
+state = {}
+
+print("[INFO] Connecting to YAKS ")
+ys = Yaks.login(args['zenoh'])
+ws = ys.workspace('/')
+
+print("[INFO] Retrieving faces vectors")
+for k, v in ws.get(args['prefix'] + "/vectors/**", encoding=Encoding.STRING):
+    add_face_to_data(data, k, v.value)
+
+print("[INFO] Starting recognition...")
+ws.subscribe(args['prefix'] + "/vectors/**", update_face_data)
 ws.subscribe(args['prefix'] + "/faces/*/*", framelistener)
 
 while True:
