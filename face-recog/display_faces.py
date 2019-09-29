@@ -8,6 +8,8 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-z", "--zenoh", type=str, default="127.0.0.1",
                 help="location of the ZENOH router")
 ap.add_argument("-p", "--prefix", type=str, default="/demo/facerecog")
+ap.add_argument("-d", "--delay", type=float, default=0.05,
+                help="delay between each refresh")
 args = vars(ap.parse_args())
 
 cams = {}
@@ -76,7 +78,7 @@ while True:
 
         cv2.imshow("Cam #" + cam, vbuf)
 
-    time.sleep(0.05)
+    time.sleep(args['delay'])
 
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):

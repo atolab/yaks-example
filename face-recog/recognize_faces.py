@@ -13,11 +13,14 @@ ap.add_argument("-q", "--quality", type=int, default=95,
                 help="The quality of the published faces (0 - 100)")
 ap.add_argument("-p", "--prefix", type=str, default="/demo/facerecog",
                 help="The resources prefix")
+ap.add_argument("-d", "--delay", type=float, default=0.2,
+                help="delay between each recognition")
 args = vars(ap.parse_args())
 
 data = {}
 data['encodings'] = []
 data['names'] = []
+cams = {}
 
 
 def add_face_to_data(fdata, key, value):
@@ -37,11 +40,35 @@ def update_face_data(kcs):
             add_face_to_data(data, k, value)
 
 
-def framelistener(kcs):
-    for k, v in kcs:
-        if v.kind == ChangeKind.PUT:
-            frame = v.get_value().get_value()
-            npImage = np.array(frame)
+def faces_listener(kvs):
+    for k, v in kvs:
+        chunks = k.split('/')
+        cam = chunks[-2]
+        face = int(chunks[-1])
+
+        if cam not in cams:
+            cams[cam] = {}
+
+        cams[cam][face] = v.get_value().get_value()
+
+
+print("[INFO] Connecting to YAKS ")
+ys = Yaks.login(args['zenoh'])
+ws = ys.workspace('/')
+
+print("[INFO] Retrieving faces vectors")
+for k, v in ws.get(args['prefix'] + "/vectors/**", encoding=Encoding.STRING):
+    add_face_to_data(data, k, v.value)
+
+print("[INFO] Starting recognition...")
+ws.subscribe(args['prefix'] + "/vectors/**", update_face_data)
+ws.subscribe(args['prefix'] + "/faces/*/*", faces_listener)
+
+while True:
+    for cam in list(cams):
+        faces = cams[cam]
+        for face in list(faces):
+            npImage = np.array(faces[face])
             matImage = cv2.imdecode(npImage, 1)
             rgb = cv2.cvtColor(matImage, cv2.COLOR_BGR2RGB)
 
@@ -59,34 +86,7 @@ def framelistener(kcs):
                         counts[name] = counts.get(name, 0) + 1
                     name = max(counts, key=counts.get)
 
-            if k in state:
-                last_name, last_time = state[k]
-                if name != "Unknown":
-                    if last_name != name:
-                        ws.put(k + "/name", Value(name, Encoding.STRING))
-                    state[k] = (name, time.time())
-                else:
-                    if last_name != "Unknown"and last_time < time.time() - 0.1:
-                        ws.put(k + "/name", Value(name, Encoding.STRING))
-                        state[k] = (name, time.time())
-            else:
-                ws.put(k + "/name", Value(name, Encoding.STRING))
-                state[k] = (name, time.time())
+            path = args['prefix'] + "/faces/" + cam + "/" + str(face) + "/name"
+            ws.put(path, Value(name, Encoding.STRING))
 
-
-state = {}
-
-print("[INFO] Connecting to YAKS ")
-ys = Yaks.login(args['zenoh'])
-ws = ys.workspace('/')
-
-print("[INFO] Retrieving faces vectors")
-for k, v in ws.get(args['prefix'] + "/vectors/**", encoding=Encoding.STRING):
-    add_face_to_data(data, k, v.value)
-
-print("[INFO] Starting recognition...")
-ws.subscribe(args['prefix'] + "/vectors/**", update_face_data)
-ws.subscribe(args['prefix'] + "/faces/*/*", framelistener)
-
-while True:
-    time.sleep(10)
+    time.sleep(args['delay'])
